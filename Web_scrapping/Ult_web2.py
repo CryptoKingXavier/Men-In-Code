@@ -11,22 +11,33 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.service import Service
 
-p=inflect.engine()
-chrome_options = Options()
-c_options = Options()
-chrome_options.add_extension('fdm.crx')
-chrome_options.add_experimental_option("detach", True)
-c_options.add_argument("window-size=1920x1080")
-c_options.add_argument('--headless')
-c_options.add_argument('--disable-gpu')
-x=Service('C:\Program Files (x86)\chromedriver.exe')
-web=[]
-list3=[]
-list4=[]
-list5=[]
 class Ani_Installer:
     def __init__(self):
+        global p, chrome_options, c_options, x, web, list3, list4, list5, site_name
+        p=inflect.engine()
+        chrome_options = Options()
+        c_options = Options()
+        chrome_options.add_extension('fdm.crx')
+        chrome_options.add_experimental_option("detach", True)
+        c_options.add_argument("window-size=1920x1080")
+        c_options.add_argument('--headless')
+        c_options.add_argument('--disable-gpu')
+        x=Service('C:\Program Files (x86)\chromeself.driver.exe')
+        web=[]
+        list3=[]
+        list4=[]
+        list5=[]
+        self.sea=str()
+        self.resol=str()
+        self.name_list=list()
+        self.stor=str()
+        self.fe=int()
+        self.le=int()
+        self.confirm=str()
         site_name="https://animepahe.com/"
+    def search(self):
+        global link
+        self.driver=webdriver.Chrome(service=x, options=c_options)
         self.sea=input("What do you want to search: ")
         self.resol=input("In which resolution: ")
         self.stor=input("Do you want to know the storage: ")
@@ -36,16 +47,16 @@ class Ani_Installer:
             exit()
         self.fe=int(input("What is the first episode to be downloaded: "))
         self.le=int(input("What is the last episode to be downloaded: "))
-        driver=webdriver.Chrome(options=c_options, service=x)  
-        driver.get(site_name)
-        driver.implicitly_wait(10)
-        d=driver.find_element(By.NAME, 'q')
+        self.driver.get(site_name)
+        self.driver.implicitly_wait(10)
+        d=self.driver.find_element(By.NAME, 'q')
         d.send_keys(self.sea)
-        soup=BeautifulSoup(driver.page_source,'lxml')
-        search_results=driver.find_element(By.CLASS_NAME,'search-results')
+        soup=BeautifulSoup(self.driver.page_source,'lxml')
+        search_results=self.driver.find_element(By.CLASS_NAME,'search-results')
         plane= search_results.find_elements(By.TAG_NAME, 'a')
-        global link
         count=0
+        for plan in plane:
+            self.name_list.append(plan)
         for plan in plane:
             count+=1
             if len(plane)==count:
@@ -56,51 +67,61 @@ class Ani_Installer:
             soup2=BeautifulSoup(nice,"lxml")
             link=site_name+soup2.find('a')['href']
             aniname=soup2.text
-            confirm=input("Is it %s:\n"%(aniname))
-            if str(confirm)=="yes":
-                driver.get(link)
+            self.confirm=input("Is it %s"%(aniname))
+            print("")
+            if self.confirm=="yes":
+                self.driver.get(link)
                 break
             else:
                 pass  
-        return site_name
-    def first_page(self,ani_url):
-        global driver
-        driver=webdriver.Chrome(options=chrome_options, service=x)
-        driver.get(ani_url)
-        dezz=driver.find_element(By.NAME, 'q')
+        #return site_name
+    def first_page(self):
+        self.driver.close()
+        self.driver=webdriver.Chrome(options=chrome_options, service=x)
+        self.driver.get(site_name)
+        dezz=self.driver.find_element(By.NAME, 'q')
         dezz.send_keys(self.sea)
-        driver.get(link)
+        self.driver.get(link)
+        if self.stor[0] == True:
+            self.search2(link)
+            for y in web:
+                list3=[]
+                self.find_storage(x=y,list3=list3)
         return link
 
-    def daily_anime(self,ani_url):
-        soup=BeautifulSoup(driver.page_source,"lxml")
+    def daily_anime(self):
+        self.driver=webdriver.Chrome(options=chrome_options, service=x)  
+        self.driver.get(site_name)
+        soup=BeautifulSoup(self.driver.page_source,"lxml")
         span=soup.find_all("span",class_='episode-title')
         did=soup.find_all("div", class_='episode-number')
-
         for pi in did:
-            print(pi.text,"\n")
-
+            if pi.text == "":
+                pass
+            else:
+                print("\n"+pi.text.strip())
+        return self.driver
     def search2(self,ulink):
         global soup, dix, sp, eps_num, nextin
-        wait=WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CLASS_NAME, 'episode-number')))
-        wait2=WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CLASS_NAME, 'episode-snapshot')))
-        soup=BeautifulSoup(driver.page_source,'lxml')
+        wait=WebDriverWait(self.driver, 20).until(EC.presence_of_element_located((By.CLASS_NAME, 'episode-number')))
+        wait2=WebDriverWait(self.driver, 20).until(EC.presence_of_element_located((By.CLASS_NAME, 'episode-snapshot')))
+        soup=BeautifulSoup(self.driver.page_source,'lxml')
         dix=soup.find_all("div",class_="episode-number")
         sp=soup.find_all("div",class_="episode-snapshot")
-        driver.implicitly_wait(10)
-        nextin=WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.XPATH, '//a[@class="page-link next-page"]')))
+        self.driver.implicitly_wait(10)
+        nextin=WebDriverWait(self.driver, 20).until(EC.element_to_be_clickable((By.XPATH, '//a[@class="page-link next-page"]')))
         eps_num=[]
-        driver.implicitly_wait(10)
+        self.driver.implicitly_wait(10)
         for num1 in dix:  
             ep_num=num1.text.replace("Episode","")
             eps_num.append(ep_num.strip())
 
-    def second_page(self):
-        for num in range(self.fe,self.le+1):
+    def download(self):
+        for num in range(self.fe,(self.le+1)):
             i=0
-            global new_link
+            global new_link, link
             while i!=1:
-                self.search2(self.first_page())
+                self.search2(link)
                 if num<int(eps_num[-1]) and str(num) in eps_num and  num>30:
                         num2=num-(30*(num//30))
                         new_link="https://animepahe.com"+sp[num2-1].a['href']  
@@ -116,45 +137,45 @@ class Ani_Installer:
             
         else:
             for x in web:
-                driver.get(x)
+                self.driver.get(x)
                 list3=[]
-                if stor == "yes":   
-                    storage=requests.get(x).text
-                    bread=BeautifulSoup(storage,"lxml")
-                    dropdown=bread.find_all("div",id="pickDownload" )
-                    #print(dropdown)
-                    for l in dropdown:
-                        if self.resol in str(l):
-                            link=l.a.text
-                            list3.append(link)
-                        else:
-                            pass
-                    print(list3)
-                    for stor in list3: 
-                        #print(stor)  
-                        for x in stor:
-                            if x=="(":
-                                break
-                            else: 
-                                stor=stor.replace(x,"",1)
-                        list4.append(stor.strip()+"f")
-                        print(list4)
-                        for mn in list4:
-                            for x in mn:
-                                if x.isdigit():
-                                    pass
-                                else:
-                                    mn=mn.replace(x,"",1)
-                        list5.append(int(mn))
-                    stor="yes"
-                    self.resol = self.resol
+                self.find_storage(x,list3)
+                self.last_page(self.third_page(x))
             print(list5)
             print("The total storage is",sum(list5),"MB")
-            self.last_page(self.third_page(x))
-
+        return self.driver
+    def find_storage(self,x,list3):   
+        storage=requests.get(x).text
+        bread=BeautifulSoup(storage,"lxml")
+        dropdown=bread.find_all("div",id="pickDownload" )
+        print(dropdown)
+        for l in dropdown:
+            if self.resol in str(l):
+                link=l.a.text
+                list3.append(link)
+            else:
+                pass
+        print(list3)
+        for stor in list3: 
+            #print(stor)  
+            for x in stor:
+                if x=="(":
+                    break
+                else: 
+                    stor=stor.replace(x,"",1)
+            list4.append(stor.strip()+"f")
+            print(list4)
+            for mn in list4:
+                for x in mn:
+                    if x.isdigit():
+                        pass
+                    else:
+                        mn=mn.replace(x,"",1)
+            list5.append(int(mn))
+        stor="yes"
+        self.resol = self.resol
     def third_page(self,ulink):
-        driver.get(ulink)
-        soup=BeautifulSoup(driver.page_source,'lxml')
+        soup=BeautifulSoup(self.driver.page_source,'lxml')
         dip=soup.find("div", class_='dropdown-menu',id='pickDownload')
         res=dip.find_all("a")
         link=''
@@ -168,19 +189,21 @@ class Ani_Installer:
             print("No resolution")
         else:
             pass
-        driver.get(link)
-        wait=WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.LINK_TEXT, 'Continue')))
-        soup=BeautifulSoup(driver.page_source,"lxml")
+        self.driver.get(link)
+        wait=WebDriverWait(self.driver, 20).until(EC.presence_of_element_located((By.LINK_TEXT, 'Continue')))
+        soup=BeautifulSoup(self.driver.page_source,"lxml")
         pahe=soup.find("div",class_="col-sm-6")
         link2=pahe.a['href']
         return link2
-
+    def downloader(self):
+        self.search()
+        self.first_page()
+        self.download()
+        return self.driver
     def last_page(self,ulink):
-        driver.get(ulink)
-        button1=WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.XPATH,'//button[@type="submit"]')))
-        driver.execute_script("arguments[0].click();", button1)
+        self.driver.get(ulink)
+        button1=WebDriverWait(self.driver, 20).until(EC.element_to_be_clickable((By.XPATH,'//button[@type="submit"]')))
+        self.driver.execute_script("arguments[0].click();", button1)
 pop=Ani_Installer()
-
-pop.daily_anime()
-sleep(10)
-driver.close()
+#pop.daily_anime()
+pop.downloader()
