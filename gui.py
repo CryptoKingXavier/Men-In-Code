@@ -1,6 +1,7 @@
 from API import RestAPI
 from tkinter import *
 from tkinter import ttk
+from Web_scrapping import Ult_web2
 import tkinter.font as font
 root=Tk()
 
