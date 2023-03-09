@@ -9,6 +9,7 @@ class RestAPI:
         self.resolution = ''
         self.back=bool(False)
         self.storage_capacity = bool()
+        self.storage_check = bool()
         self.first_episode = int()
         self.last_episode = int()
         self.confirm_download = bool()
@@ -26,8 +27,6 @@ class RestAPI:
         ace="Select anime"
         con=StringVar()
         con.set(ace)
-        print(con.get())
-        print("ace",ace)
         confirm_download = OptionMenu(roo, con,*list2).pack()
         roo.geometry("350x150")
         button=Button(roo, text="Back",font="Arial 12", command=lambda *args:(self.set_value(),roo.destroy())).pack(side=BOTTOM,ipadx=10,ipady=7)

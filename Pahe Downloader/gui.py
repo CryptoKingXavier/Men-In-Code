@@ -6,14 +6,27 @@ import tkinter.font as font
 root=Tk()
 root.title("Pahe Downloader")
 
-pop='720'
+
+pop=''
 api=RestAPI()
-def Asvalue(x):
+style_1 = {'foreground': 'black', 'background': 'RoyalBlue3'}#, 'activebackground':'gray71', 'activeforeground': 'gray71'}
+def Asvalue(x,y,a,b):
     global pop
     pop=x
+    a['style']="W.TButton"
+    b['style']="W.TButton"
+    y['style']="A.TButton"
 root.geometry("560x300")
-Label(root, text="Welcome to Pahe Downloader", font="Arial 20 bold", fg = "black").pack()
 
+Label(root, text="Welcome to Pahe Downloader", font="Arial 20 bold", fg = "black").pack()
+style_2=ttk.Style()
+style_2.theme_use('alt')
+style_2.configure('A.TButton', font =('Arial', 17),foreground='#6a6c6e',background='black')
+style_2.map('A.TButton', foreground = [('active', '!disabled', '#6a6c6e')], background = [('active', 'black')])
+style=ttk.Style()
+style.theme_use('alt')
+style.configure('W.TButton', font =('Arial', 17))
+style.map('W.TButton', foreground = [('active', '!disabled', '#6a6c6e')], background = [('active', 'black')])
 my_font2=font.Font(font="Arial 13")
 my_font=font.Font(size=15)
 ani_name=StringVar()
@@ -40,9 +53,9 @@ frame1.pack()
 frame3= Frame(root)
 frame3.pack(side=BOTTOM)
 
-b1 = Button(frame1, text="360p", font=10, width=7, command=lambda *args: Asvalue("360p"))
-b2 = Button(frame1, text="720p", font=10, width=7, command=lambda *args: Asvalue("720p"))
-b3 = Button(frame1, text="1080p", font=10, width=7, command=lambda *args: Asvalue("1080p"))
+b1 = ttk.Button(frame1,style="W.TButton", text="360p", width=7, command=lambda *args: Asvalue("360p",b1,b2,b3))
+b2 = ttk.Button(frame1,style="W.TButton", text="720p", width=7, command=lambda *args: Asvalue("720p",b2,b1,b3))
+b3 = ttk.Button(frame1,style="W.TButton", text="1080p", width=7, command=lambda *args: Asvalue("1080p",b3,b1,b2))
 b5 = Button(frame3, text="exit ",bg="red", font=10, width=7, command=lambda *args: root.quit())
 frame2=Frame(root)
 frame2.pack()
@@ -50,17 +63,20 @@ web=Ani_Installer()
 def set_para(x):
     x.sea=entry1.get()
     x.resol=pop
+    print(pop)
     x.fe=int(entry2.get())
     x.le=int(entry3.get())
+    #x.search(root)
     x.downloader(root)
 
 b4 = Button(frame3, text="Enter",height=1,width=10,bg='#0052cc', command=lambda *args:(set_para(web)))#,root.destroy()))
 b4['font']=my_font
 b5['font']=my_font
-
+b1.state(['!pressed'])
 b1.pack(side=LEFT, padx=20)
 b2.pack(side=LEFT, padx=20)
 b3.pack(padx=20)
 b4.pack(side=LEFT, padx=10)
 b5.pack(side=LEFT, padx=10)
+b2.invoke()
 root.mainloop()

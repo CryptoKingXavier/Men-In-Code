@@ -1,5 +1,6 @@
 import os
 from bs4 import BeautifulSoup
+from tkinter.messagebox import askyesno
 import inflect
 import requests
 from time import sleep
@@ -26,7 +27,8 @@ class Ani_Installer():
         web=[]
         list3=[]
         list4=[]
-        list5=[]
+        self.confirmation=1
+        self.list5=[]
         self.sea=str()
         self.resol=str()
         self.name_list=list()
@@ -42,12 +44,12 @@ class Ani_Installer():
         #self.sea=input("What do you want to search: ")
         #self.resol=input("In which resolution: ")
         #self.stor=input("Do you want to know the storage: ")
+        #self.fe=int(input("What is the first episode to be downloaded: "))
+        #self.le=int(input("What is the last episode to be downloaded: "))
         if self.resol =="720" or self.resol=="720p" or self.resol=="1080" or self.resol=="1080p" or self.resol=="360p" or self.resol=="360":
             pass
         else:
             exit()
-        #self.fe=int(input("What is the first episode to be downloaded: "))
-        #self.le=int(input("What is the last episode to be downloaded: "))
         self.driver.get(site_name)
         self.driver.implicitly_wait(10)
         d=self.driver.find_element(By.NAME, 'q')
@@ -64,10 +66,10 @@ class Ani_Installer():
             aniname=soup2.text
             li.append(aniname)
             #self.confirm=input("Is it %s"%(aniname))
-        self.driver.close()
+        #self.driver.close()
         pl.confirm(list2=li,tkin_root=tkin_root)
         pol=pl.man
-        print(pol.get())
+        print("ace",pol.get())
         for ani in self.name_list:
             soup2=BeautifulSoup(ani,"lxml")
             link=site_name+soup2.find('a')['href']
@@ -76,17 +78,30 @@ class Ani_Installer():
                 break
             else:
                 pass  
+        self.stor=pl.back
+        if pl.storage_capacity == True:
+            self.confirmation=0
+            self.driver.get(site_name)
+            dezz=self.driver.find_element(By.NAME, 'q')
+            dezz.send_keys(self.sea)
+            self.driver.get(link)
+            self.download()
+            pl.storage_check=askyesno(title="Confirm Capacity", message="The download is %sMB \n Do you wish to continue"%(sum(self.list5)))
+            if pl.storage_check==True:
+                self.confirmation=1
+                self.first_page()
+                self.download()
+                self.driver.close()
+            else:
+                self.driver.close()
+                pass
     def first_page(self):
+        self.driver.close()
         self.driver=webdriver.Chrome(options=chrome_options, service=x)
         self.driver.get(site_name)
         dezz=self.driver.find_element(By.NAME, 'q')
         dezz.send_keys(self.sea)
         self.driver.get(link)
-        if self.stor == True:
-            self.search2(link)
-            for y in web:
-                list3=[]
-                self.find_storage(x=y,list3=list3)
         return link
 
     def daily_anime(self):
@@ -141,9 +156,11 @@ class Ani_Installer():
                 self.driver.get(x)
                 list3=[]
                 self.find_storage(x,list3)
-                self.last_page(self.third_page(x))
+                if self.confirmation==1:
+                    self.last_page(self.third_page(x))  
+            if self.confirmation==1:
+                pl.show_storage(sum(self.list5),"was")
             #print(list5)
-            pl.show_storage(sum(list5),"was")
         return self.driver
     def find_storage(self,x,list3):   
         storage=requests.get(x).text
@@ -172,8 +189,9 @@ class Ani_Installer():
                         pass
                     else:
                         mn=mn.replace(x,"",1)
-            list5.append(int(mn))
+            self.list5.append(int(mn))
         self.resol = self.resol
+        return sum(self.list5)
     def third_page(self,ulink):
         soup=BeautifulSoup(self.driver.page_source,'lxml')
         dip=soup.find("div", class_='dropdown-menu',id='pickDownload')
@@ -198,9 +216,10 @@ class Ani_Installer():
     def downloader(self,x):
         self.search(x)
         if pl.back==False:
-            self.first_page()
-            self.download()
-            self.driver.close()
+            if pl.storage_capacity==False:
+                self.first_page()
+                self.download()
+                self.driver.close()
         else:
             pass
     def last_page(self,ulink):
