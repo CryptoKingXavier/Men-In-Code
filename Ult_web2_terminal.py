@@ -10,19 +10,14 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.service import Service
-import sys
-import inspect
-currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-parentdir = os.path.dirname(currentdir)
-sys.path.insert(0, parentdir)
-from API import RestAPI
-class Ani_Installer():
+
+class Ani_Installer:
     def __init__(self):
-        global p,pl, chrome_options, c_options, x, web, list3, list4, list5, site_name
+        global p, chrome_options, c_options, x, web, list3, list4, list5, site_name
         p=inflect.engine()
         chrome_options = Options()
         c_options = Options()
-        chrome_options.add_extension('Web_scrapping/fdm.crx')
+        chrome_options.add_extension('fdm.crx')
         chrome_options.add_experimental_option("detach", True)
         c_options.add_argument("window-size=1920x1080")
         c_options.add_argument('--headless')
@@ -39,20 +34,19 @@ class Ani_Installer():
         self.fe=int()
         self.le=int()
         self.confirm=str()
-        pl=RestAPI()
         site_name="https://animepahe.com/"
-    def search(self,tkin_root):
-        global link, pl
+    def search(self):
+        global link
         self.driver=webdriver.Chrome(service=x, options=c_options)
-        #self.sea=input("What do you want to search: ")
-        #self.resol=input("In which resolution: ")
-        #self.stor=input("Do you want to know the storage: ")
+        self.sea=input("What do you want to search: ")
+        self.resol=input("In which resolution: ")
+        self.stor=input("Do you want to know the storage: ")
         if self.resol =="720" or self.resol=="720p" or self.resol=="1080" or self.resol=="1080p" or self.resol=="360p" or self.resol=="360":
             pass
         else:
             exit()
-        #self.fe=int(input("What is the first episode to be downloaded: "))
-        #self.le=int(input("What is the last episode to be downloaded: "))
+        self.fe=int(input("What is the first episode to be downloaded: "))
+        self.le=int(input("What is the last episode to be downloaded: "))
         self.driver.get(site_name)
         self.driver.implicitly_wait(10)
         d=self.driver.find_element(By.NAME, 'q')
@@ -61,33 +55,34 @@ class Ani_Installer():
         search_results=self.driver.find_element(By.CLASS_NAME,'search-results')
         plane= search_results.find_elements(By.TAG_NAME, 'a')
         count=0
-        li=[]
         for plan in plane:
+            self.name_list.append(plan)
+        for plan in plane:
+            count+=1
+            if len(plane)==count:
+                print('\nThis is the last result')
+            else:
+                print('\nThis is the %s result'%(p.ordinal(count)))
             nice=plan.get_attribute("outerHTML")
-            self.name_list.append(nice)
             soup2=BeautifulSoup(nice,"lxml")
-            aniname=soup2.text
-            li.append(aniname)
-            #self.confirm=input("Is it %s"%(aniname))
-        self.driver.close()
-        pl.confirm(list2=li,tkin_root=tkin_root)
-        pol=pl.man
-        print(pol.get())
-        for ani in self.name_list:
-            soup2=BeautifulSoup(ani,"lxml")
             link=site_name+soup2.find('a')['href']
-            print(soup2.text)
-            if pol.get()==soup2.text:
+            aniname=soup2.text
+            self.confirm=input("Is it %s"%(aniname))
+            print("")
+            if self.confirm=="yes":
+                self.driver.get(link)
                 break
             else:
                 pass  
+        #return site_name
     def first_page(self):
+        self.driver.close()
         self.driver=webdriver.Chrome(options=chrome_options, service=x)
         self.driver.get(site_name)
         dezz=self.driver.find_element(By.NAME, 'q')
         dezz.send_keys(self.sea)
         self.driver.get(link)
-        if self.stor == True:
+        if self.stor[0] == True:
             self.search2(link)
             for y in web:
                 list3=[]
@@ -138,7 +133,6 @@ class Ani_Installer():
                         i=1
                 else:
                     nextin.click()
-                    sleep(1)
                     i=0
             
         else:
@@ -147,8 +141,8 @@ class Ani_Installer():
                 list3=[]
                 self.find_storage(x,list3)
                 self.last_page(self.third_page(x))
-            #print(list5)
-            pl.show_storage(sum(list5),"was")
+            print(list5)
+            print("The total storage is",sum(list5),"MB")
         return self.driver
     def find_storage(self,x,list3):   
         storage=requests.get(x).text
@@ -178,6 +172,7 @@ class Ani_Installer():
                     else:
                         mn=mn.replace(x,"",1)
             list5.append(int(mn))
+        stor="yes"
         self.resol = self.resol
     def third_page(self,ulink):
         soup=BeautifulSoup(self.driver.page_source,'lxml')
@@ -200,15 +195,15 @@ class Ani_Installer():
         pahe=soup.find("div",class_="col-sm-6")
         link2=pahe.a['href']
         return link2
-    def downloader(self,x):
-        self.search(x)
-        if pl.back==True:
-            self.first_page()
-            self.download()
-            self.driver.close()
-        else:
-            pass
+    def downloader(self):
+        self.search()
+        self.first_page()
+        self.download()
+        return self.driver
     def last_page(self,ulink):
         self.driver.get(ulink)
         button1=WebDriverWait(self.driver, 20).until(EC.element_to_be_clickable((By.XPATH,'//button[@type="submit"]')))
         self.driver.execute_script("arguments[0].click();", button1)
+pop=Ani_Installer()
+#pop.daily_anime()
+pop.downloader()
