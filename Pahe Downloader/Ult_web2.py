@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 from tkinter.messagebox import askyesno
 import inflect
 import requests
+import threading
 from time import sleep
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -25,11 +26,10 @@ class Ani_Installer():
         c_options.add_argument('--headless')
         c_options.add_argument('--disable-gpu')
         x=Service('C:\Program Files (x86)\chromedriver.exe')
-        web=[]
-        list3=[]
-        list4=[]
-        self.confirmation=1
+        self.web=[]
+        self.list4=[]
         self.list5=[]
+        self.confirmation=1
         self.sea=str()
         self.resol=str()
         self.name_list=list()
@@ -41,7 +41,7 @@ class Ani_Installer():
         pl=RestAPI()
         site_name="https://animepahe.com/"
     def search(self,tkin_root):
-        global link, pl
+        global link, pl,web,list3,list4
         self.driver=webdriver.Chrome(service=x, options=c_options)
         #self.sea=input("What do you want to search: ")
         #self.resol=input("In which resolution: ")
@@ -92,11 +92,14 @@ class Ani_Installer():
             if pl.storage_check==True:
                 self.confirmation=1
                 self.first_page()
+                self.web=[]
+                self.list4=[]
+                self.list5=[]
                 self.download()
                 self.driver.close()
             else:
                 self.driver.close()
-                pl.set_value2
+                pl.set_value2()
                 self.restart=pl.bac
                 print(self.restart)
                 pass
@@ -163,20 +166,20 @@ class Ani_Installer():
                     if num<=max(eps_num) and num in eps_num and  num>30:
                             num2=num-(30*(num//30))
                             new_link="https://animepahe.com"+sp[num2-1].a['href']  
-                            web.append(new_link)
+                            self.web.append(new_link)
                             i=1
                     elif num<=max(eps_num) and num in eps_num and  num<=30:
                             new_link="https://animepahe.com"+sp[num3-1].a['href']
-                            web.append(new_link)
+                            self.web.append(new_link)
                             i=1
                     else:
-                        
+                        self.driver.implicitly_wait(10)
                         nextin.click()
                         sleep(1)
                         i=0
             
         else:
-            for x in web:
+            for x in self.web:
                 self.driver.get(x)
                 list3=[]
                 self.find_storage(x,list3)
@@ -184,7 +187,6 @@ class Ani_Installer():
                     self.last_page(self.third_page(x))  
             if self.confirmation==1:
                 pl.show_storage(sum(self.list5),"was")
-            #print(list5)
         return self.driver
     def find_storage(self,x,list3):   
         storage=requests.get(x).text
@@ -211,9 +213,9 @@ class Ani_Installer():
                     break
                 else: 
                     stor=stor.replace(x,"",1)
-            list4.append(stor.strip())
-            print(list4)
-            for mn in list4:
+            self.list4.append(stor.strip())
+            print(self.list4)
+            for mn in self.list4:
                 for x in mn:
                     if x.isdigit():
                         pass

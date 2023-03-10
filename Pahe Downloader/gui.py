@@ -1,8 +1,10 @@
 from API import RestAPI
+import threading
 from tkinter import *
 from tkinter import ttk
 from Ult_web2 import Ani_Installer
 import tkinter.font as font
+web=Ani_Installer()
 root=Tk()
 root.title("Pahe Downloader")
 root.configure(bg="sky blue")
@@ -65,7 +67,6 @@ b5 = Button(frame3, text="exit ",bg="red", font=10, width=7, command=lambda *arg
 frame2=Frame(root)
 frame2.pack()
 frame2.configure(bg="sky blue")
-web=Ani_Installer()
 def set_para(x):
     x.sea=entry1.get()
     x.resol=pop
