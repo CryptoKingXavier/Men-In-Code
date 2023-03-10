@@ -8,6 +8,7 @@ class RestAPI:
         self.man = str()
         self.resolution = ''
         self.back=bool(False)
+        self.bac=bool(False)
         self.storage_capacity = bool()
         self.storage_check = bool()
         self.first_episode = int()
@@ -22,19 +23,24 @@ class RestAPI:
         #self.last_episode = askstring(title="Anime Episode", prompt="Last Episode")
     def set_value(self):
         self.back=True
+    def set_value2(self):
+        self.bac=True
     def confirm(self,list2,tkin_root=None):
-        roo=Toplevel()
+        roo=Toplevel(tkin_root,bg="sky blue")
+        frame=Frame(roo)
+        frame.pack(side="bottom")
+        frame.configure(bg='sky blue')
         ace="Select anime"
         con=StringVar()
         con.set(ace)
-        confirm_download = OptionMenu(roo, con,*list2).pack()
-        roo.geometry("350x150")
-        button=Button(roo, text="Back",font="Arial 12", command=lambda *args:(self.set_value(),roo.destroy())).pack(side=BOTTOM,ipadx=10,ipady=7)
-        button=Button(roo, text="Enter",font="Arial 12", command=lambda *args:(self.DownloadState(),tkin_root.destroy())).pack(side=BOTTOM,ipadx=10,ipady=7)
+        confirm_download = OptionMenu(roo,con,*list2).pack()
+        roo.geometry("430x150")
+        button=Button(frame, text="Enter",font="Arial 12",bg="blue", command=lambda *args:(self.DownloadState(),tkin_root.destroy())).pack(side="left",ipadx=10,padx=10)
+        button=Button(frame, text="Back",font="Arial 12",bg="red", command=lambda *args:(self.set_value(),tkin_root.quit(),roo.destroy())).pack(side="left",ipadx=10,padx=10)
         self.man=con
         roo.mainloop()
     def show_storage(self,x,y="is"):
         ace=showinfo("Download size","The download %s %sMB"%(y,x))
 #i=RestAPI()
-#i.confirm("Aight")
+
 #i.show_storage(100)

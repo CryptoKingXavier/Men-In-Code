@@ -11,6 +11,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.support import expected_conditions
 from API import RestAPI
 class Ani_Installer():
     def __init__(self):
@@ -33,8 +34,9 @@ class Ani_Installer():
         self.resol=str()
         self.name_list=list()
         self.stor=str()
-        self.fe=int()
-        self.le=int()
+        self.fe=float()
+        self.le=float()
+        self.restart=bool()
         self.confirm=str()
         pl=RestAPI()
         site_name="https://animepahe.com/"
@@ -58,7 +60,7 @@ class Ani_Installer():
         search_results=self.driver.find_element(By.CLASS_NAME,'search-results')
         plane= search_results.find_elements(By.TAG_NAME, 'a')
         count=0
-        li=[]
+        li=["Select anime"]
         for plan in plane:
             nice=plan.get_attribute("outerHTML")
             self.name_list.append(nice)
@@ -94,6 +96,9 @@ class Ani_Installer():
                 self.driver.close()
             else:
                 self.driver.close()
+                pl.set_value2
+                self.restart=pl.bac
+                print(self.restart)
                 pass
     def first_page(self):
         self.driver.close()
@@ -117,39 +122,58 @@ class Ani_Installer():
                 print("\n"+pi.text.strip())
         return self.driver
     def search2(self,ulink):
-        global soup, dix, sp, eps_num, nextin
+        global soup, dix, sp, eps_num, lm
         wait=WebDriverWait(self.driver, 20).until(EC.presence_of_element_located((By.CLASS_NAME, 'episode-number')))
         wait2=WebDriverWait(self.driver, 20).until(EC.presence_of_element_located((By.CLASS_NAME, 'episode-snapshot')))
         soup=BeautifulSoup(self.driver.page_source,'lxml')
         dix=soup.find_all("div",class_="episode-number")
         sp=soup.find_all("div",class_="episode-snapshot")
         self.driver.implicitly_wait(10)
-        nextin=WebDriverWait(self.driver, 20).until(EC.element_to_be_clickable((By.XPATH, '//a[@class="page-link next-page"]')))
         eps_num=[]
+        lm=float(0)
         self.driver.implicitly_wait(10)
         for num1 in dix:  
             ep_num=num1.text.replace("Episode","")
-            eps_num.append(ep_num.strip())
+            if "-" in ep_num:
+                eps_num.append(float(ep_num.strip()[0]))
+                lm=float(ep_num.strip()[-1])
+                pass
+            else:
+                eps_num.append(float(ep_num.strip()))
+        #print(eps_num)
+        #print(lm)
 
     def download(self):
         for num in range(self.fe,(self.le+1)):
+            global link, lm
             i=0
-            global new_link, link
+            global new_link
             while i!=1:
                 self.search2(link)
-                if num<=int(eps_num[-1]) and str(num) in eps_num and  num>30:
-                        num2=num-(30*(num//30))
-                        new_link="https://animepahe.com"+sp[num2-1].a['href']  
-                        web.append(new_link)
-                        i=1
-                elif num<=int(eps_num[-1]) and str(num) in eps_num and  num<=30:
-                        new_link="https://animepahe.com"+sp[num-1].a['href']
-                        web.append(new_link)
-                        i=1
+                num3=num
+                if num == lm:
+                    pass
+                    i=1
                 else:
-                    nextin.click()
-                    sleep(1)
-                    i=0
+                    if num not in eps_num:
+                        if num>30:
+                            nextin=WebDriverWait(self.driver, 20).until(EC.element_to_be_clickable((By.XPATH, '//a[@class="page-link next-page"]')))
+                        if num<min(eps_num):
+                            num+=(min(eps_num)-1)
+                    if num<=max(eps_num) and num in eps_num and  num>30:
+                            num2=num-(30*(num//30))
+                            new_link="https://animepahe.com"+sp[num2-1].a['href']  
+                            web.append(new_link)
+                            i=1
+                    elif num<=max(eps_num) and num in eps_num and  num<=30:
+                            new_link="https://animepahe.com"+sp[num3-1].a['href']
+                            web.append(new_link)
+                            i=1
+                    else:
+                        
+                        nextin.click()
+                        sleep(1)
+                        i=0
             
         else:
             for x in web:
@@ -165,11 +189,17 @@ class Ani_Installer():
     def find_storage(self,x,list3):   
         storage=requests.get(x).text
         bread=BeautifulSoup(storage,"lxml")
-        dropdown=bread.find_all("div",id="pickDownload" )
+        dropdown=[]
+        dropdow=bread.find_all("a",class_="dropdown-item" )
+        for t in dropdow:
+            if t.text=="":
+                pass
+            else:
+                dropdown.append(t)
         print(dropdown)
         for l in dropdown:
-            if self.resol in str(l):
-                link=l.a.text
+            if self.resol in str(l) and "eng" not in str(l):
+                link=l.text
                 list3.append(link)
             else:
                 pass
@@ -181,7 +211,7 @@ class Ani_Installer():
                     break
                 else: 
                     stor=stor.replace(x,"",1)
-            list4.append(stor.strip()+"f")
+            list4.append(stor.strip())
             print(list4)
             for mn in list4:
                 for x in mn:
@@ -222,6 +252,7 @@ class Ani_Installer():
                 self.driver.close()
         else:
             pass
+                
     def last_page(self,ulink):
         self.driver.get(ulink)
         button1=WebDriverWait(self.driver, 20).until(EC.element_to_be_clickable((By.XPATH,'//button[@type="submit"]')))

@@ -5,7 +5,7 @@ from Ult_web2 import Ani_Installer
 import tkinter.font as font
 root=Tk()
 root.title("Pahe Downloader")
-
+root.configure(bg="sky blue")
 
 pop=''
 api=RestAPI()
@@ -18,7 +18,7 @@ def Asvalue(x,y,a,b):
     y['style']="A.TButton"
 root.geometry("560x300")
 
-Label(root, text="Welcome to Pahe Downloader", font="Arial 20 bold", fg = "black").pack()
+Label(root,bg='sky blue', text="Welcome to Pahe Downloader", font="Arial 20 bold", fg = "black").pack()
 style_2=ttk.Style()
 style_2.theme_use('alt')
 style_2.configure('A.TButton', font =('Arial', 17),foreground='#6a6c6e',background='black')
@@ -32,17 +32,20 @@ my_font=font.Font(size=15)
 ani_name=StringVar()
 frame = Frame(root)
 frame.pack()
-prom=Label(frame, text="Enter anime name:", font="Arial 13", fg = "blue").pack(side="left", pady=10)
+frame.configure(bg="sky blue")
+prom=Label(frame,bg="sky blue", text="Enter anime name:", font="Arial 13", fg = "black").pack(side="left", pady=10)
 entry1 = ttk.Entry(frame, justify = LEFT,)
 entry1['font']=my_font2
 fram = Frame(root)
 fram.pack()
-prom2=Label(fram, text="Enter first episode:", font="Arial 13", fg = "blue").pack(side="left", pady=10)
+fram.configure(bg="sky blue")
+prom2=Label(fram,bg="sky blue", text="Enter first episode:", font="Arial 13", fg = "black").pack(side="left", pady=10)
 entry2 = ttk.Entry(fram, justify = LEFT,)
 entry2['font']=my_font2
 fra= Frame(root)
 fra.pack()
-prom3=Label(fra, text="Enter last episode:", font="Arial 13", fg = "blue").pack(side="left", pady=10)
+fra.configure(bg="sky blue")
+prom3=Label(fra,bg="sky blue", text="Enter last episode:", font="Arial 13", fg = "black").pack(side="left", pady=10)
 entry3 = ttk.Entry(fra, justify = LEFT,)
 entry3['font']=my_font2
 entry1.pack(side = 'left', ipadx = 100, ipady = 3, pady=1)
@@ -50,8 +53,10 @@ entry2.pack(side = 'left', ipadx = 100, ipady = 3, pady=1)
 entry3.pack(side = 'left', ipadx = 100, ipady = 3, pady=1)
 frame1= Frame(root)
 frame1.pack()
+frame1.configure(bg="sky blue")
 frame3= Frame(root)
 frame3.pack(side=BOTTOM)
+frame3.configure(bg="sky blue")
 
 b1 = ttk.Button(frame1,style="W.TButton", text="360p", width=7, command=lambda *args: Asvalue("360p",b1,b2,b3))
 b2 = ttk.Button(frame1,style="W.TButton", text="720p", width=7, command=lambda *args: Asvalue("720p",b2,b1,b3))
@@ -59,6 +64,7 @@ b3 = ttk.Button(frame1,style="W.TButton", text="1080p", width=7, command=lambda 
 b5 = Button(frame3, text="exit ",bg="red", font=10, width=7, command=lambda *args: root.quit())
 frame2=Frame(root)
 frame2.pack()
+frame2.configure(bg="sky blue")
 web=Ani_Installer()
 def set_para(x):
     x.sea=entry1.get()
@@ -80,3 +86,4 @@ b4.pack(side=LEFT, padx=10)
 b5.pack(side=LEFT, padx=10)
 b2.invoke()
 root.mainloop()
+print(web.restart)
