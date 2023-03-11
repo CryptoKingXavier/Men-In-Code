@@ -4,7 +4,9 @@ from tkinter.messagebox import askyesno
 import inflect
 import requests
 import threading
+from math import floor
 from time import sleep
+import numpy as np
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
@@ -133,13 +135,15 @@ class Ani_Installer():
         sp=soup.find_all("div",class_="episode-snapshot")
         self.driver.implicitly_wait(10)
         eps_num=[]
-        lm=float(0)
+        lm=[]
         self.driver.implicitly_wait(10)
         for num1 in dix:  
             ep_num=num1.text.replace("Episode","")
             if "-" in ep_num:
-                eps_num.append(float(ep_num.strip()[0]))
-                lm=float(ep_num.strip()[-1])
+                head, sep, tail = ep_num.strip().partition('-')
+                eps_num.append(float(head))
+                for main in range(int(ep_num.strip()[0])+1,int(ep_num.strip()[-1])+1):
+                    lm.append(float(main))
                 pass
             else:
                 eps_num.append(float(ep_num.strip()))
@@ -147,20 +151,25 @@ class Ani_Installer():
         #print(lm)
 
     def download(self):
-        for num in range(self.fe,(self.le+1)):
+        for num in range(int(self.fe),int(self.le+1)):
             global link, lm
             i=0
             global new_link
             while i!=1:
                 self.search2(link)
                 num3=num
-                if num == lm:
-                    pass
+                if num in lm:
                     i=1
+                    pass
                 else:
                     if num not in eps_num:
-                        if num>30:
+                        if num>max(eps_num):
+                            print(eps_num)
                             nextin=WebDriverWait(self.driver, 20).until(EC.element_to_be_clickable((By.XPATH, '//a[@class="page-link next-page"]')))
+                            self.driver.implicitly_wait(10)
+                            nextin.click()
+                            sleep(1)
+                            i=0
                         if num<min(eps_num):
                             num+=(min(eps_num)-1)
                     if num<=max(eps_num) and num in eps_num and  num>30:
@@ -173,11 +182,7 @@ class Ani_Installer():
                             self.web.append(new_link)
                             i=1
                     else:
-                        self.driver.implicitly_wait(10)
-                        nextin.click()
-                        sleep(1)
-                        i=0
-            
+                        pass
         else:
             for x in self.web:
                 self.driver.get(x)

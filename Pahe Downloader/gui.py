@@ -71,8 +71,14 @@ def set_para(x):
     x.sea=entry1.get()
     x.resol=pop
     print(pop)
-    x.fe=int(entry2.get())
-    x.le=int(entry3.get())
+    if entry2.get().strip()=="":
+        x.fe=float(1)
+    else:
+        x.fe=float(entry2.get())
+    if entry3.get().strip()=="":
+        x.le=x.fe
+    else:
+        x.le=float(entry3.get())
     #x.search(root)
     x.downloader(root)
 
