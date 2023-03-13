@@ -134,55 +134,73 @@ class Ani_Installer():
         dix=soup.find_all("div",class_="episode-number")
         sp=soup.find_all("div",class_="episode-snapshot")
         self.driver.implicitly_wait(10)
-        eps_num=[]
-        lm=[]
+        eps_num={}
+        z1=zip(sp,dix)
         self.driver.implicitly_wait(10)
-        for num1 in dix:  
+        for link,num1 in z1:  
             ep_num=num1.text.replace("Episode","")
+            lm=[]
             if "-" in ep_num:
                 head, sep, tail = ep_num.strip().partition('-')
-                eps_num.append(float(head))
-                for main in range(int(ep_num.strip()[0])+1,int(ep_num.strip()[-1])+1):
-                    lm.append(float(main))
+                for main in range(int(head)+1,int(tail)+1):
+                    lm.append(main)
+                eps_num[link]=lm
                 pass
             else:
-                eps_num.append(float(ep_num.strip()))
-        #print(eps_num)
+                lm.append(float(ep_num.strip()))
+                eps_num[link]=lm
+        print(list(eps_num.values()))
         #print(lm)
 
     def download(self):
-        for num in range(int(self.fe),int(self.le+1)):
+        counter=0
+        for num in np.arange(float(self.fe),float(self.le+.5),.5):
             global link, lm
             i=0
             global new_link
             while i!=1:
+                counter+=1
+                print(counter)
                 self.search2(link)
+                global eps_num
                 num3=num
-                if num in lm:
+                p=[h for x in list(eps_num.values()) for h in x]
+                print(p)
+                if len(p)==1 and num in p:
+                    for key,value in eps_num.items():
+                        new_link="https://animepahe.com"+key.a['href']
+                    if new_link in self.web:
+                            pass
+                    else:  
+                        self.web.append(new_link)
+                    print(self.web)
                     i=1
-                    pass
-                else:
-                    if num not in eps_num:
-                        if num>max(eps_num):
-                            print(eps_num)
-                            nextin=WebDriverWait(self.driver, 20).until(EC.element_to_be_clickable((By.XPATH, '//a[@class="page-link next-page"]')))
-                            self.driver.implicitly_wait(10)
-                            nextin.click()
-                            sleep(1)
-                            i=0
-                        if num<min(eps_num):
-                            num+=(min(eps_num)-1)
-                    if num<=max(eps_num) and num in eps_num and  num>30:
-                            num2=num-(30*(num//30))
-                            new_link="https://animepahe.com"+sp[num2-1].a['href']  
-                            self.web.append(new_link)
-                            i=1
-                    elif num<=max(eps_num) and num in eps_num and  num<=30:
-                            new_link="https://animepahe.com"+sp[num3-1].a['href']
-                            self.web.append(new_link)
-                            i=1
-                    else:
+                if num<=max(p) and num in p:
+                    for key,value in eps_num.items():
+                        if num in value:
+                            new_link="https://animepahe.com"+key.a['href']
+                    if new_link in self.web:
                         pass
+                    else:  
+                        self.web.append(new_link)
+                    print(self.web)
+                    i=1
+                i=1
+                if num not in p:
+                    if num>max(p):
+                        #print(eps_num)
+                        nextin=WebDriverWait(self.driver, 20).until(EC.element_to_be_clickable((By.XPATH, '//a[@class="page-link next-page"]')))
+                        self.driver.implicitly_wait(20)
+                        nextin.click()
+                        sleep(2)
+                        i=0
+                    if num<min(p):
+                        #print(num)
+                        num+=(min(p)-1)
+                        #print(num)
+                        i=0
+    
+                
         else:
             for x in self.web:
                 self.driver.get(x)
@@ -203,7 +221,7 @@ class Ani_Installer():
                 pass
             else:
                 dropdown.append(t)
-        print(dropdown)
+        #print(dropdown)
         for l in dropdown:
             if self.resol in str(l) and "eng" not in str(l):
                 link=l.text
